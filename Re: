@@ -108,7 +108,7 @@ def update_stats(user_id, current_word, word_type, is_correct):
                 cur.execute(
                     '''
                     UPDATE learning_stats
-                    SET correct_answers = correct_answers + %s, total_attempts = total_answers + %s
+                    SET correct_answers = correct_answers + %s, total_attempts = total_attempts + %s
                     WHERE id = %s;
                     ''',
                     (correct_inc, total_inc, stat_row),
@@ -212,13 +212,17 @@ def render_study_tab(words):
         st.session_state.answer_submitted = True
         is_correct = (selected_option == current_word['english_word'])
         st.session_state.is_correct = is_correct
-        word_type = current_word.get('type', 'personal')
+        word_type = current_word.get('word_type', 'personal')
         update_stats(st.session_state.user_id, current_word['id'],word_type, is_correct)
 
         if is_correct:
             st.toast('Правильно!', icon='✅')
         else:
             st.toast(f'Неверно! Правильный ответ: {current_word['english_word']}', icon='🚨')
+    def next_word():
+    st.session_state.current_word_index += 1
+    st.session_state.quiz_options = None
+    st.session_state.answer_submitted = False
 
     col1, col2 = st.columns(2)
     with col1:
@@ -252,6 +256,8 @@ def render_study_tab(words):
             key='btn_opt_3',
             on_click=lambda: check_answer(options[3], current_word)
         )
+    if st.session_state.answer_submitted:
+    st.button('Следующее слово ➡️', key='btn_next', on_click=next_word)
 
 def render_add_word_tab():
     st.header('➕ Добавить новое слово')
